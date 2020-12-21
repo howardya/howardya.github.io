@@ -44,7 +44,7 @@ module.exports = {
 			resolve: `gatsby-plugin-mdx`,
 			options: {
 				gatsbyRemarkPlugins: [`gatsby-remark-katex`],
-				remarkPlugins: [require(`remark-math`)],
+				remarkPlugins: [require(`remark-math`), require("remark-html-katex")],
 				defaultLayouts: {
 					posts: require.resolve("./src/components/PostPage/postpage.tsx"),
 				},
