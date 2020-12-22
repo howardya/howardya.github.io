@@ -15,7 +15,7 @@ export default function IndexPage(props) {
 					siteMetadata {
 						author
 						description
-						title
+            title
 					}
 				}
 			}

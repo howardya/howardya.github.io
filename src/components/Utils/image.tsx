@@ -13,11 +13,16 @@ and the image will be rendered!
 
 function renderImage(file, className, altText) {
 	return (
-		<Img
-			className={className}
-			fluid={file.node.childImageSharp.fluid}
-			alt={altText ? altText : ""}
-		/>
+    <>
+      <Img
+        className={className}
+        fluid={file.node.childImageSharp.fluid}
+        alt={altText ? altText : ""}
+      />
+      <div className={className}>
+        {altText}
+      </div>
+    </>
 	)
 }
 

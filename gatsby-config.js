@@ -43,13 +43,25 @@ module.exports = {
 		{
 			resolve: `gatsby-plugin-mdx`,
 			options: {
-				gatsbyRemarkPlugins: [`gatsby-remark-katex`],
+				gatsbyRemarkPlugins: [
+					`gatsby-remark-katex`,
+					`gatsby-remark-bibliography`,
+				],
 				remarkPlugins: [require(`remark-math`), require("remark-html-katex")],
 				defaultLayouts: {
 					posts: require.resolve("./src/components/PostPage/postpage.tsx"),
 				},
 			},
 		},
+		// {
+		// 	resolve: `gatsby-plugin-mdx`,
+		// 	options: {
+		// 		gatsbyRemarkPlugins: [`gatsby-remark-bibliography`],
+		// 		defaultLayouts: {
+		// 			posts: require.resolve("./src/components/PostPage/postpage.tsx"),
+		// 		},
+		// 	},
+		// },
 		`gatsby-plugin-react-helmet`,
 		`gatsby-transformer-sharp`,
 		`gatsby-plugin-sharp`,
