@@ -44,8 +44,8 @@ module.exports = {
 			resolve: `gatsby-plugin-mdx`,
 			options: {
 				gatsbyRemarkPlugins: [
-					`gatsby-remark-katex`,
 					`gatsby-remark-bibliography`,
+					`gatsby-remark-katex`,
 				],
 				remarkPlugins: [require(`remark-math`), require("remark-html-katex")],
 				defaultLayouts: {
