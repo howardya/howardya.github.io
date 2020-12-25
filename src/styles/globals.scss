@@ -85,7 +85,7 @@ h6 {
 body {
 	margin: 0;
 	font-family: $serif-stack;
-	font-size: 110%;
+	font-size: 105%;
 	font-weight: 500;
 	color: $text-black;
 }
@@ -159,7 +159,7 @@ hr {
 }
 
 section {
-	max-width: 800px;
+	max-width: $section-max-width;
 	width: 100%;
 	padding: 10px 20px;
 }

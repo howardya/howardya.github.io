@@ -14,7 +14,7 @@ const Header = props => (
 					: props.siteTitle}
 			</h1>
 		</Link>
-		<Menu right className="Header__menu">
+		<Menu right width={400} className="Header__menu">
 			<Link to="/" className="Header__menu__item menuTitle">
 				{!props.siteTitle || props.siteTitle === ""
 					? `Undefined`
@@ -27,9 +27,9 @@ const Header = props => (
 			<Link to="/all-posts" className="Header__menu__item">
 				Posts
 			</Link>
-			<Link to="/example-page" className="Header__menu__item">
+			{/* <Link to="/example-page" className="Header__menu__item">
 				Example Page
-			</Link>
+			</Link> */}
 		</Menu>
 	</header>
 )

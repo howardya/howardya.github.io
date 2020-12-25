@@ -1,0 +1,204 @@
+---
+title: A Physically Intuitive Introduction To Hopfield Network and Hebbian Learning
+date: "2020-12-25"
+description: "Explaining the intuition behind Hopfield Network and Hebbian Learning, with links to and insights from Quantum Physics."
+categories: ["machine-learning-algorithm"]
+tags: ["hopfield", "machine-learning"]
+---
+
+import Image from "../../src/components/Utils/image"
+
+There are many good articles \cite{hopfieldIsAllYouNeed} and videos \cite{hopfieldYoutube,hopfieldYoutube2019} introducing the idea of Hopfield Network \cite{Hopfield2554} and they are pretty good. In this article however, my attempt is to describe the concept in a more intuitive manner, linking the concept to geometry and quantum physics.
+
+## Objectives of Hopfield Network
+
+The goal of Hopfield Network is to model how our memory might work in practise, inside our brain. We often have the following experience: We cannot recall exactly the thing we want to remember, it can be a song, a book, a date or a person's name. However, if we are prompted with partial memory of it, suddenly there is the eureka moment and the memory comes back.
+
+This is exactly what Hopfield Network is aiming to model.
+
+## Toy Example - Single Memory State
+
+Suppose we only have one item to remember, for our Hopfield Network to learn. As usual, we will encode this item as a mathematical object, a vector to be precise. I shall denote its representation as a column vector $|x\rangle$. (I am using the Dirac notation here but it is nothing more than just a column vector.)
+
+Our job is to start with an arbitrary vector, $|y_0\rangle$, and then update the vector in a step by step manner,$|y_n\rangle \rightarrow |y_{n+1}\rangle$. The update should ideally be done in a manner that, after many iterations, $|y_{\infty}\rangle \approx |x\rangle$ as close as possible.
+
+To proceed, we first define what does it mean the closeness. We can define the projector $P_x = |x\rangle\langle x|$ (In the vector space notation, this is simply, $xx^T$). Closeness is then defined as
+
+$$
+\text{Closeness of }x\text{ vs }y = \langle y|P_x|y\rangle
+$$
+
+This is where physical intuition helps. There are a few ways to interpret the definition above:
+
+1. Geometrical Interpretation: In vector notations, the closeness is essentially $y^Txx^Ty = (x\cdot y)^2 = \cos^2 \theta$, where $\theta$ is the angle between the vector $x$ and $y$.
+
+2. Quantum Measurement Interpretation (Born's Rule): The above formula is simply the formula to calculate the probability of obtaining outcome $x$ if we perform the a measurement on $|y\rangle$. The formula can be simplified to obtain the usual expression of Born's rule, $\langle y|P_x|y\rangle=\langle y|x\rangle\langle x|y\rangle = \left| \langle y|x\rangle \right|^2$.
+
+3. Operatonal Interpretation: The above formula is also the definition of quantum fidelity between two pure states and can be interpreted as the best probability that the state $|y\rangle$ can be pass any tests meant to distinguish it from $|x\rangle$.
+
+In above, I have chosen to define using closeness and thus the update procedure is to increase it. One can also define it in terms of energy. Mathematically, any function that "invert the sign of closeness" can be treated as an "energy" function (more on this later). Physically, in the spin contexts, two spins along the same direction is a more stable configurations as opposed to opposite direction. Thus, a valid energy function would be (both mathematically and physically):
+
+$$
+\text{Energy}(y) = -\frac{1}{2}\langle y|x\rangle\langle x|y\rangle
+$$
+
+## Hebbian Updates - Single Memory State
+
+Now that we have the closeness definition, the next key piece is to discover an algorithm to perform the update to the objects $|y_n\rangle$, in order to increase its closeness (equivalently, decrease its energy). It is good to point out here that Hopfield Network typically deals with discrete variables, in the sense that all the elements in the vectors $|x\rangle$ or $|y_n\rangle$ are binary, $\{-1,1\}$ for instance.
+
+Suppose now we would like to update the vector $|y_n\rangle$: We first project it onto the subspace spanned by $|x\rangle$, and this can be done by applying the projector $P_x$ onto $|y_{n}\rangle$:
+
+$$
+P_x|y_{n}\rangle = |x\rangle\underbrace{\langle x|y_n\rangle}_{\mathrlap{\text{length of projection onto }|x\rangle}}
+$$
+
+We are going to allow ourselves to modify the elements in the vector $|y_n\rangle$ individually. To get a sense of how to do that, notice the following:
+
+1. Our definition of goodness is invariant with respect to sign change: We are satisfied if we get something parallel to $|x\rangle$, i.e. either close to $|x\rangle$ or $-|x\rangle$.
+
+2. If $|y_{n}\rangle$ is "closer" to $|x\rangle$, then we aim to update the vector so that $|y_{n+1}\rangle$ is further closer to $|x\rangle$. However, if $|y_{n}\rangle$ is "closer" to $-|x\rangle$, then we aim to update the vector such that $|y_{n+1}\rangle$ is further closer to $-|x\rangle$. Whether it is closer to $|x\rangle$ or $-|x\rangle$ is determined by the sign of $\langle x|y_{n}\rangle$, since this is the dot product, or cosine of the angle between two vectors.
+
+3. Now, for the actual update, we randomly pick an element of $y_n^{(i)} \coloneqq (|y_n\rangle)_{i}$. Then we set $y_{n+1}^{(i)} \rightarrow x^{(i)}$ when $\langle x|y_{n}\rangle > 0$. Recall that if $\langle x|y_{n}\rangle > 0$, it means the angle between the two vectors are acute, so $|y_{n}\rangle$ is "closer" to $|x\rangle$, so we want the new vector's $i^{th}$ element to be equal to $|x\rangle$. On the contrary, if $\langle x|y_{n}\rangle < 0$, we set $y_{n+1}^{(i)} \rightarrow -x^{(i)}$. In summary:
+
+$$
+y_{n+1}^{(i)} = \left\{\begin{array}{ll} x^{(i)} & \text{if }\langle x|y_{n}\rangle > 0 \\ -x^{(i)} & \text{if }\langle x|y_{n}\rangle < 0 \end{array}\right.
+$$
+
+Since the elements of the vector $|x\rangle$ are $\pm1$, the previous equation can be further simplified and compactly summarized as $y_{n+1}^{(i)} = \text{sign}\left( x^{(i)} \langle x|y_{n}\rangle \right)$. This is equivalent to the Hebbian Learning update rule that is presented in major literatures:
+
+$$
+|y_{n+1}\rangle = \text{sign}\left( |x\rangle \langle x|y_{n}\rangle \right) = \text{sign}\left( P_x|y_{n}\rangle \right)
+$$
+
+> Hebbian Learning in Hopfield Network is to construct a projector for the pattern to memorize. To recall the pattern, we use the projector to project any starting pattern and tweak the bits of vector, repeatedly, such that eventually, the new pattern closely resembles the memory.
+
+## Biases
+
+In the standard definition of Hopfield Network's energy, biases are added so that we no longer treat $1$ and $-1$ as equivalent. The update rule is only marginally more complicated but the intuition is the same. As such, we shall ignore biases in this article.
+
+## Multiple Memory states
+
+From above, we see that we associate a projector $P_x = |x\rangle\langle x|$ for the single memory vector $x$ we are trying to memorize inside a Hopfield Network. What happens if we have multiple states to remember? The straightforward way to do that is to define the following matrix
+
+$$
+M = \frac{1}{N} \sum_{x=1}^N P_x
+$$
+
+where $P_x$ is the projector associated to the pattern $x$ we would like our Hopfield Network to memorize. Note that $M$ is no longer a projector because the vectors $|x\rangle$ may not be orthogonal with one another.
+
+The closeness definition still stays the same but has slightly different physical interpretation:
+
+$$
+\text{Closeness} = \langle y_{n}|M|y_{n}\rangle = \frac{1}{N} \sum_x \left| \langle y_{n}|x\rangle \right|^2
+$$
+
+It is thus the weighted averaged probability to each of the memory stored in the network. By maximizing closeness, we aim to find the state $|y_{\infty}\rangle$ that maximizes this weighted probability to all the states in our memory.
+
+Let's see what happens if we apply the same Hebbian Learning algorithm as above,
+
+$$
+y_{n+1}^{(i)} = \text{sign} \left( \frac{1}{N} \sum_x x^{(i)} \langle x|y_{n}\rangle   \right)
+$$
+
+Thus, the decision to flip the $i^{th}$ bit carries through from earlier intuition, albeit the complicated weighting scheme, which is necessary due to multiple memory states.
+
+## Extensions of Hopfield vs Foundations of Quantum Physics
+
+The above are what many called the *classical* Hopfield Network, and extensions have been proposed \cite{krotov,Demircigil_2017}. I would refer readers to \cite{hopfieldIsAllYouNeed} for a wonderful review of the matters. Here I take a slightly different approach and show its connection to the foundations of quantum physics.
+
+Recall that in above, both the single and multiple memory states, there is the _common quantity_ in the formula closeness (or energy) definition: the probability/Born's rule/squared-dot-product $|\langle x|y_{n}\rangle|^2$. However, why the squared? What is so special about it? To non physicists, this question may not seem interesting, but it is extremely suspicious why our nature chooses to square the quantity so that it represents _the_ probability.
+
+Thus, in Hopfield Network (and as well as in quantum physics), we have tried to go beyond, and propose alternatives to the rule. In particular we can consider any of these definitions
+
+1. Powers of $n$: $|\langle x|y_{n}\rangle|^n$ as described in \cite{krotov}.
+
+2. Exponentials : $\exp\left(\langle x|y_{n}\rangle\right)$ as described in \cite{Demircigil_2017}.
+
+3. Specially crafted function: $f\left( \langle x|y_{n}\rangle\right)$ as described in \cite{hopfieldIsAllYouNeed}.
+
+The (physical) intuition behind all these is that we are exploring different ways to define the probability of quantum states, the Born's rule. It is often taken as a postulate (cannot be proven) but recent research has shown that it is a direct consequence (the only possibility) of a few even more fundamental requirements of how our world should behave \cite{Masanes_2019}.
+
+Unfortunately (and interestingly) for quantum physics, there is only one possibility to define probability. However, it seems like the advantages of going beyond classical Hopfield Network are far greater than its classical counterpart \cite{hopfieldIsAllYouNeed}.
+
+## Final Remark
+
+In this article, I have illustrated a physical intuition and link between Hopfield Network and Quantum Physics. I should mention that it is, perhaps no surprising that, there is an interesting link between the two, since the former was heavily inspired by physical systems such as spin glasses and Ising model.
+
+
+<br /><br />
+
+<br /><br />
+
+### References
+
+@@bibliography@@
+@article {Hopfield2554,
+author = {Hopfield, J J},
+title = {Neural networks and physical systems with emergent collective computational abilities},
+volume = {79},
+number = {8},
+pages = {2554--2558},
+year = {1982},
+doi = {10.1073/pnas.79.8.2554},
+publisher = {National Academy of Sciences},
+abstract = {Computational properties of use of biological organisms or to the construction of computers can emerge as collective properties of systems having a large number of simple equivalent components (or neurons). The physical meaning of content-addressable memory is described by an appropriate phase space flow of the state of a system. A model of such a system is given, based on aspects of neurobiology but readily adapted to integrated circuits. The collective properties of this model produce a content-addressable memory which correctly yields an entire memory from any subpart of sufficient size. The algorithm for the time evolution of the state of the system is based on asynchronous parallel processing. Additional emergent collective properties include some capacity for generalization, familiarity recognition, categorization, error correction, and time sequence retention. The collective properties are only weakly sensitive to details of the modeling or the failure of individual devices.},
+issn = {0027-8424},
+journal = {Proceedings of the National Academy of Sciences}
+},
+@manual{hopfieldIsAllYouNeed,
+title = {Hopfield Networks is All You Need},
+author = {Hubert Ramsauer and Bernhard Schafl and Johannes Lehner and Philipp Seidl and Michael Widrich and Lukas Gruber and Markus Holzleitner and Milena Pavlović and Geir Kjetil Sandve and Victor Greiff and David Kreil and Michael Kopp and Günter Klambauer and Johannes Brandstetter and Sepp Hochreiter},
+year = {2020},
+url={https:\/\/ml-jku.github.io\/hopfield-layers\/}
+}
+@manual{hopfieldYoutube2019,
+title = {Lecture 20 Hopfield Nets and Auto Associators},
+author = {Rita Singh and Bhiksha Raj},
+year = {2019},
+url={http:\/\/youtube.com\/watch?v=3Cp_pjPRmt8}
+}
+@manual{hopfieldYoutube,
+title = {ANN as Mathematical Machine},
+author = {Math4IQB Youtube},
+year = {2020},
+url={http:\/\/youtube.com\/watch?v=gfPUWwBkXZY}
+}
+@article{krotov,
+author = {Dmitry Krotov and John J. Hopfield},
+title = {Dense Associative Memory for Pattern Recognition},
+journal = {CoRR},
+volume = {abs/1606.01164},
+year = {2016},
+url = {http:\/\/arxiv.org\/abs\/1606.01164},
+archivePrefix = {arXiv},
+eprint = {1606.01164}
+}
+@article{Demircigil_2017,
+title={On a Model of Associative Memory with Huge Storage Capacity},
+volume={168},
+ISSN={1572-9613},
+DOI={10.1007/s10955-017-1806-y},
+number={2},
+journal={Journal of Statistical Physics},
+publisher={Springer Science and Business Media LLC},
+author={Demircigil, Mete and Heusel, Judith and Löwe, Matthias and Upgang, Sven and Vermet, Franck},
+year={2017},
+month={May},
+pages={288–299}
+}
+@article{Masanes_2019,
+title={The measurement postulates of quantum mechanics are operationally redundant},
+volume={10},
+ISSN={2041-1723},
+DOI={10.1038/s41467-019-09348-x},
+number={1},
+journal={Nature Communications},
+publisher={Springer Science and Business Media LLC},
+author={Masanes, Lluís and Galley, Thomas D. and Müller, Markus P.},
+year={2019},
+month={Mar}
+}
+@@bibliography@@
+
+$$
+$$

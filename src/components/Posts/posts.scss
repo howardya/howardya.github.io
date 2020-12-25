@@ -1,8 +1,9 @@
 @import "../../styles/colors.scss";
+@import "../../styles/layout.scss";
 
 .Posts {
 	width: 100%;
-	max-width: 800px;
+	max-width: $section-max-width;
 	padding: 30px;
 
 	&__banner {
@@ -23,6 +24,7 @@
 		margin: 0;
 		font-weight: 900;
 		font-size: 1.35em;
+		max-width: 80%;
 	}
 
 	&__date {
