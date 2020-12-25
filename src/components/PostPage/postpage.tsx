@@ -25,7 +25,6 @@ export default function PostPage({ data: { mdx } }) {
 					{dateInEnglish(mdx.frontmatter.date)}
 				</h3>
 				<MDXProvider components={shortcodes} className="test">
-          {console.log(mdx.body)}
 					<MDXRenderer>{mdx.body}</MDXRenderer>
 				</MDXProvider>
 				<a

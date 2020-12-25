@@ -1,8 +1,9 @@
 @import "../../styles/colors.scss";
+@import "../../styles/layout.scss";
 
 .Intro {
 	width: 100%;
-	max-width: 800px;
+	max-width: $section-max-width;
 
 	padding: 10px 30px;
 	display: flex;

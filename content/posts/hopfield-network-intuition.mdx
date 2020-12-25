@@ -1,14 +1,14 @@
 ---
-title: Physical Intuition of Hopfield Network and Hebbian Learning
+title: A Physically Intuitive Introduction To Hopfield Network and Hebbian Learning
 date: "2020-12-25"
-description: "Abc"
+description: "Explaining the intuition behind Hopfield Network and Hebbian Learning, with links to and insights from Quantum Physics."
 categories: ["machine-learning-algorithm"]
 tags: ["hopfield", "machine-learning"]
 ---
 
 import Image from "../../src/components/Utils/image"
 
-There are many good articles \cite{hopfieldIsAllYouNeed} and videos \cite{hopfieldYoutube} introducing the idea of Hopfield Network \cite{Hopfield2554} and they are pretty good. In this article however, my attempt is to describe the concept in a more intuitive manner, linking the concept to geometry and quantum physics.
+There are many good articles \cite{hopfieldIsAllYouNeed} and videos \cite{hopfieldYoutube,hopfieldYoutube2019} introducing the idea of Hopfield Network \cite{Hopfield2554} and they are pretty good. In this article however, my attempt is to describe the concept in a more intuitive manner, linking the concept to geometry and quantum physics.
 
 ## Objectives of Hopfield Network
 
@@ -70,91 +70,66 @@ $$
 |y_{n+1}\rangle = \text{sign}\left( |x\rangle \langle x|y_{n}\rangle \right) = \text{sign}\left( P_x|y_{n}\rangle \right)
 $$
 
+> Hebbian Learning in Hopfield Network is to construct a projector for the pattern to memorize. To recall the pattern, we use the projector to project any starting pattern and tweak the bits of vector, repeatedly, such that eventually, the new pattern closely resembles the memory.
+
+## Biases
+
+In the standard definition of Hopfield Network's energy, biases are added so that we no longer treat $1$ and $-1$ as equivalent. The update rule is only marginally more complicated but the intuition is the same. As such, we shall ignore biases in this article.
+
+## Multiple Memory states
+
+From above, we see that we associate a projector $P_x = |x\rangle\langle x|$ for the single memory vector $x$ we are trying to memorize inside a Hopfield Network. What happens if we have multiple states to remember? The straightforward way to do that is to define the following matrix
+
+$$
+M = \frac{1}{N} \sum_{x=1}^N P_x
+$$
+
+where $P_x$ is the projector associated to the pattern $x$ we would like our Hopfield Network to memorize. Note that $M$ is no longer a projector because the vectors $|x\rangle$ may not be orthogonal with one another.
+
+The closeness definition still stays the same but has slightly different physical interpretation:
+
+$$
+\text{Closeness} = \langle y_{n}|M|y_{n}\rangle = \frac{1}{N} \sum_x \left| \langle y_{n}|x\rangle \right|^2
+$$
+
+It is thus the weighted averaged probability to each of the memory stored in the network. By maximizing closeness, we aim to find the state $|y_{\infty}\rangle$ that maximizes this weighted probability to all the states in our memory.
+
+Let's see what happens if we apply the same Hebbian Learning algorithm as above,
+
+$$
+y_{n+1}^{(i)} = \text{sign} \left( \frac{1}{N} \sum_x x^{(i)} \langle x|y_{n}\rangle   \right)
+$$
+
+Thus, the decision to flip the $i^{th}$ bit carries through from earlier intuition, albeit the complicated weighting scheme, which is necessary due to multiple memory states.
+
 ## Extensions of Hopfield vs Foundations of Quantum Physics
 
-To understand how classical RAM works, it is instructive to consider the following cat example:
+The above are what many called the *classical* Hopfield Network, and extensions have been proposed \cite{krotov,Demircigil_2017}. I would refer readers to \cite{hopfieldIsAllYouNeed} for a wonderful review of the matters. Here I take a slightly different approach and show its connection to the foundations of quantum physics.
 
-Suppose you have 8 cute cats, and you keep a note of which cat has been fed, and which is still hungry (poor cat). We shall use the notation as followed: $0$ indicates that the cat is hungry and $1$ indicates that the cat has been fed. For example, in the Figure 1 below, we can see which cats are have been fed (Cat 1/3/4/5/7) and which cats are hungry (Cat 2/6/8).
+Recall that in above, both the single and multiple memory states, there is the _common quantity_ in the formula closeness (or energy) definition: the probability/Born's rule/squared-dot-product $|\langle x|y_{n}\rangle|^2$. However, why the squared? What is so special about it? To non physicists, this question may not seem interesting, but it is extremely suspicious why our nature chooses to square the quantity so that it represents _the_ probability.
 
-<Image
-	fileName="quantum-ram/figure-1-cat-data.png"
-	className="medium-image"
-	alt="Figure 1: Cats with indicators whether they have been fed already or still hungry."
-/>
+Thus, in Hopfield Network (and as well as in quantum physics), we have tried to go beyond, and propose alternatives to the rule. In particular we can consider any of these definitions
 
-They are stored in RAM as binary data: RAM will assign an address to the location it stores the data
+1. Powers of $n$: $|\langle x|y_{n}\rangle|^n$ as described in \cite{krotov}.
 
-| Cats Index | Status | RAM Data | RAM Address |
-| :--------: | :----: | :------: | :---------: |
-|   Cat 1    |  Full  |    1     |    0x000    |
-|   Cat 2    | Hungry |    0     |    0x001    |
-|   Cat 3    |  Full  |    1     |    0x010    |
-|   Cat 4    |  Full  |    1     |    0x011    |
-|   Cat 5    |  Full  |    1     |    0x100    |
-|   Cat 6    | Hungry |    0     |    0x101    |
-|   Cat 7    |  Full  |    1     |    0x110    |
-|   Cat 8    | Hungry |    0     |    0x111    |
+2. Exponentials : $\exp\left(\langle x|y_{n}\rangle\right)$ as described in \cite{Demircigil_2017}.
 
-Notice that I have also included the address pointing to the location where the RAM data of each cat is being stored.
+3. Specially crafted function: $f\left( \langle x|y_{n}\rangle\right)$ as described in \cite{hopfieldIsAllYouNeed}.
 
-## Classical RAM Retrieval
+The (physical) intuition behind all these is that we are exploring different ways to define the probability of quantum states, the Born's rule. It is often taken as a postulate (cannot be proven) but recent research has shown that it is a direct consequence (the only possibility) of a few even more fundamental requirements of how our world should behave \cite{Masanes_2019}.
 
-1. **Superposition** - In the classical RAM, there is always a unique address that we are interested in. Sure, we may want to find out what are the data stored in address 1, address 2, ... and so on, but the we will never _mix_ up query address 1 and address 2 together. In quantum computers, it is necessary to be able query a **superposition** of the quantum state in address 1 with the quantum state of address 2. For instance, we want the state $ \frac{1}{\sqrt{2}} \left( |0x001\rangle + |0x110\rangle  \right) $. There is no classical analogue to this.
+Unfortunately (and interestingly) for quantum physics, there is only one possibility to define probability. However, it seems like the advantages of going beyond classical Hopfield Network are far greater than its classical counterpart \cite{hopfieldIsAllYouNeed}.
 
-2. **Decoherence** - Classical RAM can in principle store the data as long as its power is on. Quantum computers do not have such luxury because quantum systems are extremely delicate. Quantum memory will decohere (destroyed into unusable state) in a short time span. How short is the time scale we are talking? Miliseconds \cite{Miao1493}.
+## Final Remark
 
-3. **Entanglement** - Entanglement is a double edged sword. It is a useful feature but it is also a pain to deal with. In the Figure 2 above, you may notice that the second bit of the address controls _all_ the gates at the second level. The number of gates at the $n^{th}$ level scales exponentially. In a quantum computer, this would mean that we need to interact exponentially many quantum objects and such interaction will create a massive entanglement between all the objects. This kind of system is extremely prone to decoherence.
+In this article, I have illustrated a physical intuition and link between Hopfield Network and Quantum Physics. I should mention that it is, perhaps no surprising that, there is an interesting link between the two, since the former was heavily inspired by physical systems such as spin glasses and Ising model.
 
-## Quantum RAM
 
-Despite the problems addressed above, there are advances in terms of algorithms and implementations. Here I illustrate the algorithm called **bucket-brigade** quantum RAM \cite{qramPRL,qramPRA}.
+<br /><br />
 
-To simplify the notations, I shall reduce the levels to only two levels. Thus the addresses can only be one of the following ${0x00,0x01,0x10,0x11}$. Inside the quantum RAM, holds the information, which in this quantum states. The following table provides a summary.
+<br /><br />
 
-|              Address              |                 States                 |
-| :-------------------------------: | :------------------------------------: |
-| $\left\vert0x00\right\rangle_{A}$ | $\left\vert Cat_{00}\right\rangle_{M}$ |
-| $\left\vert0x01\right\rangle_{A}$ | $\left\vert Cat_{01}\right\rangle_{M}$ |
-| $\left\vert0x10\right\rangle_{A}$ | $\left\vert Cat_{10}\right\rangle_{M}$ |
-| $\left\vert0x11\right\rangle_{A}$ | $\left\vert Cat_{11}\right\rangle_{M}$ |
-
-The subscripts $A$ and $M$ here are to distinguish the systems from address vs memory states.
-
-However, remember that we have a quantum computer: thus, any _linear combination_ of the addresses are also valid. For example, a user can specify the following valid address:
-
-$$
-\alpha*{00} \left|0x00\right\rangle*{A} + \alpha*{11} \left|0x11\right\rangle*{A}
-$$
-
-where $\left|\alpha_{00}\right|^2 + |\alpha_{11}\vert^2 = 1$. The quantum computer, together with quantum RAM, should return the user the following states:
-
-$$
-\alpha*{00}
-\left|0x00\right\rangle*{A}
-\left|Cat*{00}\right\rangle*{M} +
-\alpha*{11}
-\left|0x11\right\rangle*{A}
-\left|Cat*{11}
-\right\rangle*{M}
-$$
-
-## Quantum RAM Retrieval Process
-
-To understand the idea behind the retrieval from a quantum RAM, the authors proposed that we first prepare our quantum RAM in the following states as shown in the figure below. The circles refer to a switch is initially in the off state.
-
-<Image
-	fileName="quantum-ram/figure-3-BB-step1.png"
-	className="small-image"
-	alt="Figure 3: Initialization of quantum RAM."
-/>
-
-We then sequentially send the quantum address from _top to bottom_, one qubit by one qubit. To understand the process, it is good to start with simple cases.
-
-### A. Classical address in quantum RAM
-
-### B. Quantum address in quantum RAM
-
-## Final Remarks
+### References
 
 @@bibliography@@
 @article {Hopfield2554,
@@ -176,11 +151,52 @@ author = {Hubert Ramsauer and Bernhard Schafl and Johannes Lehner and Philipp Se
 year = {2020},
 url={https:\/\/ml-jku.github.io\/hopfield-layers\/}
 }
+@manual{hopfieldYoutube2019,
+title = {Lecture 20 Hopfield Nets and Auto Associators},
+author = {Rita Singh and Bhiksha Raj},
+year = {2019},
+url={http:\/\/youtube.com\/watch?v=3Cp_pjPRmt8}
+}
 @manual{hopfieldYoutube,
 title = {ANN as Mathematical Machine},
-author = {Math4IQB},
+author = {Math4IQB Youtube},
 year = {2020},
 url={http:\/\/youtube.com\/watch?v=gfPUWwBkXZY}
+}
+@article{krotov,
+author = {Dmitry Krotov and John J. Hopfield},
+title = {Dense Associative Memory for Pattern Recognition},
+journal = {CoRR},
+volume = {abs/1606.01164},
+year = {2016},
+url = {http:\/\/arxiv.org\/abs\/1606.01164},
+archivePrefix = {arXiv},
+eprint = {1606.01164}
+}
+@article{Demircigil_2017,
+title={On a Model of Associative Memory with Huge Storage Capacity},
+volume={168},
+ISSN={1572-9613},
+DOI={10.1007/s10955-017-1806-y},
+number={2},
+journal={Journal of Statistical Physics},
+publisher={Springer Science and Business Media LLC},
+author={Demircigil, Mete and Heusel, Judith and Löwe, Matthias and Upgang, Sven and Vermet, Franck},
+year={2017},
+month={May},
+pages={288–299}
+}
+@article{Masanes_2019,
+title={The measurement postulates of quantum mechanics are operationally redundant},
+volume={10},
+ISSN={2041-1723},
+DOI={10.1038/s41467-019-09348-x},
+number={1},
+journal={Nature Communications},
+publisher={Springer Science and Business Media LLC},
+author={Masanes, Lluís and Galley, Thomas D. and Müller, Markus P.},
+year={2019},
+month={Mar}
 }
 @@bibliography@@
 
