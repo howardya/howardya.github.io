@@ -1,0 +1,80 @@
+---
+title: Quantum Hopfield Network
+date: "2020-12-28"
+description: "Introducing the concept of Quantum version of Hopfield Network."
+categories: ["quantum-machine-learning-algorithm"]
+tags: ["hopfield", "machine-learning", "quantum"]
+---
+
+import Image from "../../src/components/Utils/image"
+
+A few different extensions have been proposed to implement quantum version of Hopfield Network \cite{Rotondo_2018,Seddiqi_2014,Rebentrost_2018} using different mechanisms to encode the training data as well as different implementations to the retrieve *content addressable memory*.
+
+In this article, I will illustrate quantum Hopfield Network using the implementation discussed in \cite{Rebentrost_2018}.
+
+I will assume that you have understood how a classical Hopfield Network works, and if not you may want to go through this <a href="hopfield-network-intuition">article</a> first.
+
+## Encoding of Data
+
+Recall that Hopfield Network intends to encode training data or activation pattern, and that requires a representation or encoding in our computer. In the classical computer, these would be standard bits. In quantum computer they can be represented as the phases in a quantum system. 
+
+For example, consider the $m^{th}$ training data which is a $d$-dimensional bits, $(x^{(m)}_1,x^{(m)}_2,\ldots,x^{(m)}_d)$, then it is represented in quantum computer as
+$$
+|x^{(m)}\rangle = \sum_{i=1}^d x_i^{(m)} |i\rangle
+$$
+
+where the $|i\rangle$ are the standard basis. This can be done using <a href="quantum-ram">quantum RAM</a> \cite{qramPRL}.
+
+## Quantum Hebbian Learning
+
+In the <a href="hopfield-network-intuition">classical setting</a>, Hebbian Learning means the construction/learning of a matrix which can then be used for retrieving content addressable memory. The matrix is constructed as 
+$$
+M = \frac{1}{M} \sum_m x_m x_m^T
+$$
+
+In quantum computer however, such matrix can be represented as a density matrix, $\rho$ defined by
+$$
+\rho = \frac{1}{M} \sum_m |x^{(m)}\rangle \langle x^{(m)}|
+$$
+
+The density matrix can be constructed either through qRAM \cite{qramPRL} or efficient state preparation \cite{efficientStatePreparation}.
+
+## Updating of Quantum States
+
+In the classical setting, we update the vector iteratively using the rule as described in <a href="hopfield-network-intuition">here</a>:
+$$
+|y_{n+1}\rangle = \text{sign}\left( |x\rangle \langle x|y_{n}\rangle \right) = \text{sign}\left( P_x|y_{n}\rangle \right)
+$$
+
+In the quantum version, any changes to a state must be done through unitary operators and any output must be done through measurements. 
+
+In order to efficiently map the operations to quantum states, the authors in \cite{Rebentrost_2018} first reformulated an equivalent updating rule, using matrix inversion. The rationale for using matrix inversion is because it is one of the operations quantum physicists know how to perform it well \cite{Harrow_2009}. 
+
+The key observation is to view the update as a pure optimization task minimizing the enery subject to the constraint that the optimized vector equal to the partial input pattern we are interested to recall. In other words, in the classical Hopfield Network, equivalent formulation is to minimize the following Lagrangian
+$$
+\mathcal{L} = - \frac{1}{2} \boldsymbol{x^T}W\boldsymbol{x} + \boldsymbol{\theta^T}\boldsymbol{x} - \boldsymbol{\lambda^T}\left( P\boldsymbol{x} - \boldsymbol{x^\text{input}}  \right) + \frac{\gamma}{2} \boldsymbol{x^T}\boldsymbol{x}
+$$
+where $\boldsymbol{\lambda}$ is the lagrange multiplier, $\gamma$ is the penalty function multiplier and $P$ is the projector onto the subspace spanned by $\boldsymbol{x^{\text{input}}}$. The solution to the above opmization, $\boldsymbol{x^*}$ is given by
+$$
+\left( \begin{array}{c} \boldsymbol{x} \\ \boldsymbol{\lambda} \end{array} \right) = A^{-1} |w\rangle \\
+\hspace{1mm}\\
+A \equiv \left( \begin{array}{cc} W-\gamma\mathcal{I}_d & P \\ P & 0 \end{array} \right), \hspace{5mm} |w\rangle \equiv \left( \begin{array}{c} \boldsymbol{\theta} \\ \boldsymbol{x^\text{input}} \end{array} \right) \\
+$$
+
+The state $A^{-1}|w\rangle$ can be prepared rather efficiently. For specific details, you may refer to \cite{Rebentrost_2018}.
+
+Once the final state is prepared, it can then be used to extract the relevant information, be it measurements or tomography.
+
+## Final Remark
+
+In this article, I have shown how the classical Hopfield Network is extended to quantum Hopfield Network, at least in principle. The key ingredient for this to be possible is the ability for quantum computer to perform matrix inversion in an efficient manner. This operation is one of the key hallmark of quantum computing and quantum algorithms.
+
+
+<br /><br />
+
+<br /><br />
+
+### References
+
+@@bibliography@@
+@@bibliography@@
