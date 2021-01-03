@@ -1,0 +1,154 @@
+---
+title: Fourier Transform - FT Vs DFT vs FFT
+date: "2020-12-30"
+description: "Explaining the difference between FT, DFT and FFT."
+categories: [""]
+tags: ["fourier-transform", "fft"]
+---
+
+import diracDeltaExponentialFile from '../../src/pdf/DiracDeltaExponential.pdf' 
+
+
+Fourier transform (FT) is perhaps one of the most important mathematical tool in the modern digital world today. It is used whenever we stream Youtube, listen to music, make a call or when we are learning quantum physics. 
+
+In this article, I would like to give an introduction and clarification to the differences between the them, in particular:
+1. Fourier Transform (FT)
+2. Discrete-Time Fourier Transform (DTFT)
+3. Discrete Fourier Transform (DFT)
+4. Fast Fourier Transform
+
+They all have slightly different definitions and interpretations, to be used in different applications.
+
+## Fourier Transform
+
+When I think of Fourier transform, I think of it as a convenient, useful, and interesting tool for us to look at things from a different perspectives. When you think of music, you may think of them as (vibrations) amplitude across the time domain, or you may think of it as frequency distributions. The same duality manifests as positions and momentums in quantum physics.
+
+A sine wave for instance, displayed as a sinusoidal change in the aplitude in time domain, is nonetheless a very well defined function in the frequeny domain: it has a fixed frequency and thus displays as a fixed deterministic point in the frequency domain distribution.
+
+The mathematical definition of Fourier transform, is given as followed:
+$$
+\mathcal{F}(p) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx \; f(x) e^{-ipx}
+$$
+where the original function $f(x)$ has been transformed into its dual space and the distribution on the dual space is given by $\mathcal{F}(p)$. 
+
+The physical meaning of $x$ and $p$ depends on the context. They can be the position-momentum or time-frequency. The transform can be reversed through the inverse Fourier transform defined by:
+$$
+f(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dp \; \mathcal{F}(p) e^{ipx}
+$$
+
+## Discrete-Time Fourier Transform
+
+Once we are comfortable with FT, the next natural idea is DTFT, as opposed to DFT. Discrete time Fourier transform, as the name suggests, assumes the signals in the time domain are discrete, at fixed intervals, mimicking how real world signals would have been measured and taken. However, DTFT would transform the discrete signals to the frequency and the Fourier transform is continuous in the frequency domain.
+
+Consider the original function $f(x)$ which is sampled discretely, at a fixed interval $\Delta_x$. This can be represented using Dirac's distribution as
+$$
+f^{DT}(x) = \sum_{n=-\infty}^{\infty} f(x) \delta(x-n\Delta_x)
+$$
+
+We can then Fourier transform the above discrete version of $f(x)$ to obtain
+$$
+\mathcal{F}^{DTFT}(p) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx \; f^{DT}(x) e^{-ipx}
+$$
+$$
+\mathcal{F}^{DTFT}(p) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx \; \sum_{n=-\infty}^{\infty} f(x) \delta(x-n\Delta_x) e^{-ipx}
+$$
+$$
+\mathcal{F}^{DTFT}(p) = \frac{1}{\sqrt{2\pi}} \sum_{n=-\infty}^{\infty} f(n\Delta_x) e^{-ipn\Delta_x}
+$$
+where the last equation, defined as the DTFT of the function $f(x)$, is a continuous function of $p$. 
+
+Thus, DTFT transforms a discrete time function into a continuous frequency domain function. This explains why it is named as discrete time FT.
+
+One interesting thing to note is that if $\Delta_x = \Delta'$, that is it is independent of $x$, then the DTFT is periodic by nature. This can be seen easily by noticing that
+$$
+\mathcal{F}^{DTFT}(p) = \frac{1}{\sqrt{2\pi}} \sum_{n=-\infty}^{\infty} f(n\Delta') e^{-ipn\Delta'} = \frac{1}{\sqrt{2\pi}} \sum_{n=-\infty}^{\infty} f(n\Delta') e^{-in\Delta'(p + \frac{2\pi}{\Delta'} k)} = \mathcal{F}^{DTFT}(p + \frac{2\pi}{\Delta'} k)
+$$
+where $k$ is any integers. The periodicity is thus $\frac{2\pi}{\Delta'}$.
+
+The intuition is that in DTFT, we have discarded a large chunks of information in our original time domain function, and in the frequency domain, it means that we only need to specify the frequency amplitude for one period. The length of the period depends on the gap $\Delta'$.
+
+> The bigger the gap $\Delta'$ is, the more information we are ignoring in the time domain. Thus we need to specify smaller information in the frequency domain, and this is reflected by the smaller period $\frac{2\pi}{\Delta'}$ in the frequency domain.
+
+The inverse of DTFT is given by 
+$$
+f(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dp \; \mathcal{F}^{DTFT}(p) e^{ipx}
+$$
+Due to the periodicity of $\mathcal{F}^{DTFT}(p)$, it can also be written equivalently as
+$$
+f(n\Delta') = \frac{1}{\sqrt{2\pi}} \int_{0}^{\frac{2\pi}{\Delta'}} dp \; \mathcal{F}^{DTFT}(p) e^{ipn\Delta'}
+$$
+
+## Discrete Fourier Transform
+
+In the previous section, the DTFT of a discrete version is a continuous function in the frequency domain. While it is good to capture the continuous behaviour in the frequency domain, it is not practical for computer to deal with continuous function.
+
+Discrete Fourier transform (DFT) is another variant such that it takes in finite discrete inputs in the time domain and output finite discrete outputs in the frequency domain, so that computers can work efficiently on it.
+
+Three changes we are going to make:
+1. Assume that the sampling is only done at finite number of $N$ points, corresponding to $\Delta, 2\Delta,\ldots,N\Delta$. Thus we have $f^{D}(x) = \sum_{n=1}^{N} f(x) \delta(x-n\Delta)$.
+2. Assume that the sampled data in the time domain is periodic outside the range from $\Delta$ to $N\Delta$. Thus $f^{D}(x + N\Delta) = f^{D}(x)$. With this assumption, we can extend the function to infinite sums again, $f^{D}(x) = \sum_{n=-\infty}^{\infty} f(x) \delta(x-n\Delta)$. We only need to note that $f(x+N\Delta) = f(x)$.
+3. Recall that discreteness in the time domain implies that the frequency domain function is periodic. Similar, a periodic time domain function will imply discreteness in the frequency domain.
+4. Periodic and discreteness in the frequency domain means that we need only to keep finite number of terms.
+
+Let us derive how Fourier transform of the function $f^{D}(x)$ looks like.
+$$
+\mathcal{F}^{DFT}(p) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx \; f^{D}(x) e^{-ipx}
+$$
+$$
+\mathcal{F}^{DFT}(p) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx \; \sum_{n=-\infty}^{\infty} f(x) \delta(x-n\Delta) e^{-ipx}
+$$
+$$
+\mathcal{F}^{DFT}(p) = \frac{1}{\sqrt{2\pi}} \sum_{n=-\infty}^{\infty} f(n\Delta) e^{-ipn\Delta}
+$$
+
+In the last equations, we can replace the single summation with a double summations
+$$
+\sum_{n=-\infty}^{\infty} F(n) \rightarrow \sum_{n=1}^{N} \sum_{m=-\infty}^\infty F(n+mN)
+$$
+Thus, we have
+$$
+\mathcal{F}^{DFT}(p) = \frac{1}{\sqrt{2\pi}} \sum_{n=1}^{N} \sum_{m=-\infty}^\infty f(n\Delta + mN\Delta) e^{-ipn\Delta}e^{-ipmN\Delta}
+$$
+However, we have $f(n\Delta + mN\Delta) = f(n\Delta)$, due to the periodicity as described in the second point above.
+$$
+\mathcal{F}^{DFT}(p) = \frac{1}{\sqrt{2\pi}} \sum_{n=1}^{N} f(n\Delta)e^{-ipn\Delta} \sum_{m=-\infty}^\infty  e^{-ipmN\Delta}
+$$
+$$
+\mathcal{F}^{DFT}(p) = \frac{1}{\sqrt{2\pi}} \sum_{n=1}^{N} f(n\Delta)e^{-ipn\Delta} \frac{2\pi}{N\Delta} \sum_{l=-\infty}^{\infty} \delta(p-n \frac{2\pi}{N\Delta})
+$$
+The second equation above is due to the identity below, which can be found at <a target="_blank" href="http://fourier.eng.hmc.edu/e102/lectures/ExponentialDelta.pdf">here</a>. (The pdf can be downloaded <a href={diracDeltaExponentialFile} download>here</a>)
+$$
+\frac{1}{F} \sum_{m=-\infty}^{\infty} e^{-i2\pi mf/F} = \sum_{l=-\infty}^{\infty} \delta(f-lF)
+$$
+
+To simplify the equation further, notice that the Fourier transform $\mathcal{F}^{DFT}(p)$ is periodic with period $\frac{2\pi}{\Delta}$. Thus we only need to know the values for $\mathcal{F}^{DFT}(p)$ from, say, $0$ to $\frac{2\pi}{\Delta}$. Combined this with the fact we have a discrete Dirac delta functions, it is obvious that we only need the $N$ values $\mathcal{F}^{DFT}(p)$ where $p=\frac{2\pi}{N\Delta}, 2\frac{2\pi}{N\Delta},\ldots,N\frac{2\pi}{N\Delta}$. These discrete values are given by
+$$
+\mathcal{F}^{DFT}(k\frac{2\pi}{N\Delta}) = \frac{1}{\sqrt{2\pi}} \frac{2\pi}{N\Delta} \sum_{n=1}^{N} f(n\Delta)e^{-i k2\pi\frac{n}{N}}
+$$
+
+The inverse of DFT can be derived equivalently by the same logic as above.
+
+## Fast Fourier Transform
+
+
+## Summary
+
+| Cats Index | FT | DTFT | DFT | FFT
+| :--------: | :----: | :------: | :---------: | :---------: |
+|Cat 1    |  Full  |    1     |    0x000    |
+|Cat 2    | Hungry |    0     |    0x001    |
+|   Cat 3    |  Full  |    1     |    0x010    |
+|   Cat 4    |  Full  |    1     |    0x011    |
+|   Cat 5    |  Full  |    1     |    0x100    |
+|   Cat 6    | Hungry |    0     |    0x101    |
+|   Cat 7    |  Full  |    1     |    0x110    |
+|   Cat 8    | Hungry |    0     |    0x111    |
+
+<br /><br />
+
+<br /><br />
+
+### References
+
+@@bibliography@@
+@@bibliography@@
