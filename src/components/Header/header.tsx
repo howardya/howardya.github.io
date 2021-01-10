@@ -14,7 +14,7 @@ const Header = props => (
 					: props.siteTitle}
 			</h1>
 		</Link>
-		<Menu right width={400} className="Header__menu">
+		<Menu right width={300} className="Header__menu">
 			<Link to="/" className="Header__menu__item menuTitle">
 				{!props.siteTitle || props.siteTitle === ""
 					? `Undefined`

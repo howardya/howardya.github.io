@@ -1,0 +1,42 @@
+---
+title: Dirac Distribution and Fourier Transform
+date: "2020-12-30"
+description: "Derivation of Dirac distribution from Fourier Transform identity."
+tags: ["dirac-distributions", "fourier-transform"]
+---
+
+The standard definition of Fourier transform is defined by
+$$
+\mathcal{F}(p) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx \; f(x) e^{-ipx}
+$$
+and its inverse is defined by
+$$
+f(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dp \; \mathcal{F}(p) e^{ipx}
+$$
+
+With a small trick of combining the above, we obtain
+$$
+f(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dp \; \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty dx' \; f(x') e^{-ipx'} e^{ipx}
+$$
+$$
+f(x) = \int_{-\infty}^\infty dx' \; f(x') \; \frac{1}{2\pi} \int_{-\infty}^\infty dp \;  e^{ip(x-x')}
+$$
+
+The integral on the right has the property of a Dirac delta distribution, $\int dx\;f(x')\delta(x-x') = f(x)$. This suggests the identity
+$$
+\frac{1}{2\pi} \int_{-\infty}^\infty dp \;  e^{ip(x-x')} = \delta(x-x')
+$$
+
+This is not a proof however. In order to <a href="https://math.stackexchange.com/a/3087690">derive</a> it more rigorously, recall Dirac's delta is a distribution. Consider the following implementation of the distribution,
+$$
+\delta(x-x') = \lim_{n \rightarrow \infty} \delta_n(x-x') = \lim_{n \rightarrow \infty} \sqrt{\frac{n}{\pi}} e^{-n(x-x')^2}
+$$
+The requirement that $\int dx \delta_n(x-x') = 1$ for all $n$ is satisfied. It can be shown that 
+$$
+\lim_{n \rightarrow \infty} \sqrt{\frac{n}{\pi}} e^{-n(x-x')^2} = \lim_{n \rightarrow \infty} \frac{1}{2\pi} \int dp \;e^{-\frac{p^2}{4n}} e^{i(x-x')p} \rightarrow \frac{1}{2\pi} \int dp \; e^{i(x-x')p}
+$$
+
+Thus we have the identity
+$$
+\delta(x-x') = \frac{1}{2\pi} \int dp \; e^{i(x-x')p}
+$$

@@ -12,7 +12,6 @@ const shortcodes = { Link }
 import "./postpage.scss"
 
 export default function PostPage({ data: { mdx } }) {
-	console.log(mdx)
 	return (
 		<Layout>
 			<SEO

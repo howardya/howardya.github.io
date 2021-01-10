@@ -4,7 +4,7 @@ import { Link } from "gatsby"
 import dateInEnglish from "../Utils/dateInEnglish"
 import truncateText from "../Utils/truncateText"
 
-import "./posts.scss"
+import "./notes.scss"
 
 export default function Posts({ data }) {
 	const allMdx = usePostQuery()
@@ -13,11 +13,12 @@ export default function Posts({ data }) {
 			<h2 style={{ textAlign: "center", marginTop: "50px", color: "gray" }}>
 				No posts found.
 			</h2>
-		)
+    )
+    
 	return (
 		<>
 			<section className="Posts">
-				<h2 className="Posts__banner">Posts</h2>
+				<h2 className="Posts__banner">Notes</h2>
 				{allMdx.edges.map((post, i) => (
 					<div className="Post" key={i}>
 						<Link to={`/${post.node.slug}`} className="Post__metainfo">
@@ -45,10 +46,10 @@ export const usePostQuery = () => {
 	// Fetch latest posts
 	const { allMdx } = useStaticQuery(
 		graphql`
-			query FetchRecentPosts {
+			query FetchRecentNotes {
 				allMdx(
 					sort: { order: DESC, fields: frontmatter___date }
-					filter: { fileAbsolutePath: { regex: "/content/posts/" } }
+					filter: { fileAbsolutePath: { regex: "/content/notes/" } }
 				) {
 					edges {
 						node {
